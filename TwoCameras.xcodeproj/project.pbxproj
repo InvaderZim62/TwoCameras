@@ -6,30 +6,25 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4A7C0AFE2F885B6400BC69AD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7C0AF32F885B6400BC69AD /* AppDelegate.swift */; };
+		4A7C0AFF2F885B6400BC69AD /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7C0AF62F885B6400BC69AD /* GameViewController.swift */; };
+		4A7C0B002F885B6400BC69AD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7C0AFC2F885B6400BC69AD /* SceneDelegate.swift */; };
+		4A7C0B022F885B6400BC69AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4A7C0AF52F885B6400BC69AD /* Assets.xcassets */; };
+		4A7C0B042F885B6400BC69AD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4A7C0AF92F885B6400BC69AD /* LaunchScreen.storyboard */; };
+		4A7C0B052F885B6400BC69AD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4A7C0AFB2F885B6400BC69AD /* Main.storyboard */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		4A7C0AD92F885B4C00BC69AD /* TwoCameras.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TwoCameras.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A7C0AF32F885B6400BC69AD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		4A7C0AF52F885B6400BC69AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4A7C0AF62F885B6400BC69AD /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		4A7C0AF72F885B6400BC69AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4A7C0AF82F885B6400BC69AD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		4A7C0AFA2F885B6400BC69AD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		4A7C0AFC2F885B6400BC69AD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		4A7C0AED2F885B4E00BC69AD /* Exceptions for "TwoCameras" folder in "TwoCameras" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 4A7C0AD82F885B4C00BC69AD /* TwoCameras */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		4A7C0ADB2F885B4C00BC69AD /* TwoCameras */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				4A7C0AED2F885B4E00BC69AD /* Exceptions for "TwoCameras" folder in "TwoCameras" target */,
-			);
-			path = TwoCameras;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		4A7C0AD62F885B4C00BC69AD /* Frameworks */ = {
@@ -45,7 +40,7 @@
 		4A7C0AD02F885B4C00BC69AD = {
 			isa = PBXGroup;
 			children = (
-				4A7C0ADB2F885B4C00BC69AD /* TwoCameras */,
+				4A7C0AFD2F885B6400BC69AD /* TwoCameras */,
 				4A7C0ADA2F885B4C00BC69AD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +51,28 @@
 				4A7C0AD92F885B4C00BC69AD /* TwoCameras.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		4A7C0AFD2F885B6400BC69AD /* TwoCameras */ = {
+			isa = PBXGroup;
+			children = (
+				4A7C0AFB2F885B6400BC69AD /* Main.storyboard */,
+				4A7C0AF62F885B6400BC69AD /* GameViewController.swift */,
+				4A7C0B062F885B8600BC69AD /* Supporting Files */,
+				4A7C0AF72F885B6400BC69AD /* Info.plist */,
+			);
+			path = TwoCameras;
+			sourceTree = "<group>";
+		};
+		4A7C0B062F885B8600BC69AD /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4A7C0AF32F885B6400BC69AD /* AppDelegate.swift */,
+				4A7C0AF52F885B6400BC69AD /* Assets.xcassets */,
+				4A7C0AF92F885B6400BC69AD /* LaunchScreen.storyboard */,
+				4A7C0AFC2F885B6400BC69AD /* SceneDelegate.swift */,
+			);
+			path = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -72,9 +89,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				4A7C0ADB2F885B4C00BC69AD /* TwoCameras */,
 			);
 			name = TwoCameras;
 			packageProductDependencies = (
@@ -122,6 +136,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A7C0B022F885B6400BC69AD /* Assets.xcassets in Resources */,
+				4A7C0B042F885B6400BC69AD /* LaunchScreen.storyboard in Resources */,
+				4A7C0B052F885B6400BC69AD /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,10 +149,32 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A7C0AFE2F885B6400BC69AD /* AppDelegate.swift in Sources */,
+				4A7C0AFF2F885B6400BC69AD /* GameViewController.swift in Sources */,
+				4A7C0B002F885B6400BC69AD /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		4A7C0AF92F885B6400BC69AD /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4A7C0AF82F885B6400BC69AD /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		4A7C0AFB2F885B6400BC69AD /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4A7C0AFA2F885B6400BC69AD /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		4A7C0AEF2F885B4E00BC69AD /* Debug */ = {
@@ -154,6 +193,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -187,6 +227,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
