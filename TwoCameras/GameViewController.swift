@@ -11,7 +11,6 @@ import SceneKit
 
 struct Constant {
     static let nominalCameraDistance: Float = 8
-    static let boxSize: CGFloat = 1
 }
 
 class GameViewController: UIViewController {
@@ -28,13 +27,28 @@ class GameViewController: UIViewController {
         setupScene()
         setupCamera()
         
-        let box = SCNBox(width: Constant.boxSize, height: Constant.boxSize, length: Constant.boxSize, chamferRadius: 0.0)
-        box.materials.first?.diffuse.contents = UIColor.gray
-        let boxNode = SCNNode(geometry: box)
-        boxNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)  // needed for .showPhysicsShapes
-        scnView.scene?.rootNode.addChildNode(boxNode)
+        addJet()
     }
     
+    private func addJet() {
+        let jet = SCNBox(width: 0.3, height: 0.1, length: 1, chamferRadius: 0.0)
+        jet.materials.first?.diffuse.contents = UIColor.gray
+        let jetNode = SCNNode(geometry: jet)
+        jetNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)  // needed for .showPhysicsShapes
+        scnView.scene?.rootNode.addChildNode(jetNode)
+        
+        let wing = SCNBox(width: 1.2, height: 0.1, length: 0.2, chamferRadius: 0.0)
+        wing.materials.first?.diffuse.contents = UIColor.gray
+        let wingNode = SCNNode(geometry: wing)
+        jetNode.addChildNode(wingNode)
+        
+        let tail = SCNBox(width: 0.1, height: 0.3, length: 0.2, chamferRadius: 0.0)
+        tail.materials.first?.diffuse.contents = UIColor.gray
+        let tailNode = SCNNode(geometry: tail)
+        tailNode.position = SCNVector3(x: 0, y: 0.15, z: 0.4)
+        jetNode.addChildNode(tailNode)
+    }
+
     // MARK: - Setup
 
     private func setupView() {
