@@ -1,25 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ZTH-Zc-0zg">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Game View Controller-->
-        <scene sceneID="tXr-a1-R10">
+        <scene sceneID="4Q3-ys-tJz">
             <objects>
-                <viewController id="BV1-FR-VrT" customClass="GameViewController" customModule="TwoCameras" customModuleProvider="target" sceneMemberID="viewController">
-                    <sceneKitView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="3se-qz-xqx">
+                <viewController id="ZTH-Zc-0zg" customClass="GameViewController" customModule="TwoCameras" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="QaV-e0-70q">
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="low-gx-0g0">
+                                <rect key="frame" x="0.0" y="0.0" width="390" height="417.66666666666669"/>
+                            </sceneKitView>
+                            <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KoH-4v-YwW">
+                                <rect key="frame" x="0.0" y="425.66666666666674" width="390" height="418.33333333333326"/>
+                            </sceneKitView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="cIS-6h-7bs"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    </sceneKitView>
+                        <constraints>
+                            <constraint firstItem="KoH-4v-YwW" firstAttribute="top" secondItem="low-gx-0g0" secondAttribute="bottom" constant="8" symbolic="YES" id="DzS-Ek-Uj5"/>
+                            <constraint firstAttribute="bottom" secondItem="KoH-4v-YwW" secondAttribute="bottom" id="JQg-x2-ac2"/>
+                            <constraint firstItem="KoH-4v-YwW" firstAttribute="leading" secondItem="cIS-6h-7bs" secondAttribute="leading" id="M0o-hT-weN"/>
+                            <constraint firstItem="low-gx-0g0" firstAttribute="trailing" secondItem="cIS-6h-7bs" secondAttribute="trailing" id="XZ5-Qb-Y04"/>
+                            <constraint firstItem="low-gx-0g0" firstAttribute="leading" secondItem="cIS-6h-7bs" secondAttribute="leading" id="aJ1-0O-1HP"/>
+                            <constraint firstItem="low-gx-0g0" firstAttribute="height" secondItem="QaV-e0-70q" secondAttribute="height" multiplier="0.495" id="fIt-VC-esI"/>
+                            <constraint firstItem="low-gx-0g0" firstAttribute="top" secondItem="QaV-e0-70q" secondAttribute="top" id="mui-mg-uPH"/>
+                            <constraint firstItem="KoH-4v-YwW" firstAttribute="trailing" secondItem="cIS-6h-7bs" secondAttribute="trailing" id="nEQ-LH-0a8"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="scnViewLower" destination="KoH-4v-YwW" id="99t-Su-pVL"/>
+                        <outlet property="scnViewUpper" destination="low-gx-0g0" id="bga-BD-9V6"/>
+                    </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="NXV-dy-ZXY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="94" y="137"/>
+            <point key="canvasLocation" x="710.76923076923072" y="145.73459715639811"/>
         </scene>
     </scenes>
     <resources>
