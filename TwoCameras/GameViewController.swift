@@ -21,6 +21,8 @@ class GameViewController: UIViewController {
 
     var cameraNodeUpper: SCNNode!
     var cameraNodeLower: SCNNode!
+    
+    var jetNode: SCNNode!
 
     @IBOutlet weak var scnViewUpper: SCNView!
     @IBOutlet weak var scnViewLower: SCNView!
@@ -34,12 +36,15 @@ class GameViewController: UIViewController {
         setupCameras()
         
         addJet()
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        scnViewUpper.addGestureRecognizer(tap)
     }
     
     private func addJet() {
         let jet = SCNBox(width: 0.3, height: 0.1, length: 1, chamferRadius: 0.0)
         jet.materials.first?.diffuse.contents = UIColor.gray
-        let jetNode = SCNNode(geometry: jet)
+        jetNode = SCNNode(geometry: jet)
         jetNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)  // needed for .showPhysicsShapes
         
         let wing = SCNBox(width: 1.2, height: 0.1, length: 0.2, chamferRadius: 0.0)
@@ -54,6 +59,10 @@ class GameViewController: UIViewController {
         jetNode.addChildNode(tailNode)
 
         scnViewUpper.scene?.rootNode.addChildNode(jetNode)
+    }
+    
+    @objc private func handleTap(_ tap: UITapGestureRecognizer) {
+        jetNode.transform = SCNMatrix4Rotate(jetNode.transform, .pi / 8, 0, 1, 0)
     }
 
     // MARK: - Setup
