@@ -15,10 +15,6 @@ import SceneKit
 struct Constant {
     static let minicamDistance: Float = 2  // can't be at 0, for pinch to work
     static let cameraDistance: Float = 6
-    static let cameraHeight: Float = 0.3  // minicam
-    static let cameraLength: Float = 0.4
-    static let realRadius: Float = 0.13
-    static let lensLength: Float = 0.3
 }
 
 class GameViewController: UIViewController {
@@ -49,7 +45,7 @@ class GameViewController: UIViewController {
         boxNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)  // needed for .showPhysicsShapes
         scnViewUpper.scene?.rootNode.addChildNode(boxNode)
 
-        minicamNode = MinicamNode()
+        minicamNode = MinicamNode(bodyLength: 0.4)
         minicamNode.position = minicamOffset
         scnViewUpper.scene?.rootNode.addChildNode(minicamNode)
 
