@@ -38,7 +38,7 @@ class GameViewController: UIViewController {
         addJet()
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        scnViewUpper.addGestureRecognizer(tap)
+        view.addGestureRecognizer(tap)
     }
     
     private func addJet() {
