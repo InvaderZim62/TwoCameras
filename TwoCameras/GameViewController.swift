@@ -100,7 +100,7 @@ class GameViewController: UIViewController {
             let deltaRight = Float(translation.x / 150)
             let deltaUp = Float(-translation.y / 150)
             
-            let deltaMinicam = transformVectorFromWorldToLocal(vector: SCNVector3(0, -deltaRight, 0), minicamNode.orientation)
+            let deltaMinicam = convertVectorFromWorldToLocal(vector: SCNVector3(0, -deltaRight, 0), minicamNode.orientation)
             minicamNode.orientation = minicamNode.orientation.rotatedBy(deltaPitch: deltaUp + deltaMinicam.x, deltaYaw: deltaMinicam.y, deltaRoll: deltaMinicam.z)
             
         } else if recognizer.numberOfTouches == 2 {
@@ -109,7 +109,7 @@ class GameViewController: UIViewController {
             minicamOffset -= deltaPosition
         }
         
-        minicamNode.position = transformVectorFromLocalToWorld(vector: minicamOffset, minicamNode.orientation)
+        minicamNode.position = convertVectorFromLocalToWorld(vector: minicamOffset, minicamNode.orientation)
         updateMinicamOffsetLines()
         recognizer.setTranslation(.zero, in: recognizer.view)
     }
@@ -117,7 +117,7 @@ class GameViewController: UIViewController {
     @objc func handlePinch(recognizer: UIPinchGestureRecognizer) {
         minicamOffset.z /= Float(recognizer.scale)  // should prevent this from reaching zero
         updateMinicamOffsetLines()
-        minicamNode.position = transformVectorFromLocalToWorld(vector: minicamOffset, minicamNode.orientation)
+        minicamNode.position = convertVectorFromLocalToWorld(vector: minicamOffset, minicamNode.orientation)
         recognizer.scale = 1
     }
     
@@ -126,7 +126,7 @@ class GameViewController: UIViewController {
         let deltaRoll = Float(recognizer.rotation)
         minicamNode.orientation = minicamNode.orientation.rotatedBy(deltaPitch: 0, deltaYaw: 0, deltaRoll: deltaRoll)
         let deltaQuat = SCNQuaternion(x: 0, y: 0, z: 1, w: deltaRoll)
-        minicamOffset = transformVectorFromWorldToLocal(vector: minicamOffset, deltaQuat)
+        minicamOffset = convertVectorFromWorldToLocal(vector: minicamOffset, deltaQuat)
         updateMinicamOffsetLines()
         recognizer.rotation = 0
     }
@@ -156,31 +156,18 @@ class GameViewController: UIViewController {
         minicamNode.addChildNode(offsetLines[index])
     }
 
-    // transform vector from body to world coordinates
-    private func transformVectorFromLocalToWorld(vector: SCNVector3, _ quat: SCNQuaternion) -> SCNVector3 {
-        let t0 = -quat.x * vector.x - quat.y * vector.y - quat.z * vector.z
-        let t1 =  quat.w * vector.x + quat.y * vector.z - quat.z * vector.y
-        let t2 =  quat.w * vector.y - quat.x * vector.z + quat.z * vector.x
-        let t3 =  quat.w * vector.z + quat.x * vector.y - quat.y * vector.x
-        
-        let v1 = -t0 * quat.x + t1 * quat.w - t2 * quat.z + t3 * quat.y
-        let v2 = -t0 * quat.y + t1 * quat.z + t2 * quat.w - t3 * quat.x
-        let v3 = -t0 * quat.z - t1 * quat.y + t2 * quat.x + t3 * quat.w
-        
-        return SCNVector3(v1, v2, v3)
+    private func convertVectorFromLocalToWorld(vector: SCNVector3, _ quat: SCNQuaternion) -> SCNVector3 {
+        // SceneKit doesn't have quaternion math functions (like .act), so convert to simd, using extensions below
+        let simdQuat = simd_quatf(quat)
+        let simdVector = simd_float3(vector)
+        return SCNVector3(simdQuat.act(simdVector))
     }
     
-    private func transformVectorFromWorldToLocal(vector: SCNVector3, _ quat: SCNQuaternion) -> SCNVector3 {
-        let t0 = quat.x * vector.x + quat.y * vector.y + quat.z * vector.z
-        let t1 = quat.w * vector.x - quat.y * vector.z + quat.z * vector.y
-        let t2 = quat.w * vector.y + quat.x * vector.z - quat.z * vector.x
-        let t3 = quat.w * vector.z - quat.x * vector.y + quat.y * vector.x
-        
-        let v1 = t0 * quat.x + t1 * quat.w + t2 * quat.z - t3 * quat.y
-        let v2 = t0 * quat.y - t1 * quat.z + t2 * quat.w + t3 * quat.x
-        let v3 = t0 * quat.z + t1 * quat.y - t2 * quat.x + t3 * quat.w
-        
-        return SCNVector3(v1, v2, v3)
+    private func convertVectorFromWorldToLocal(vector: SCNVector3, _ quat: SCNQuaternion) -> SCNVector3 {
+        // SceneKit doesn't have quaternion math functions (like .act), so convert to simd, using extensions below
+        let simdQuat = simd_quatf(quat)
+        let simdVector = simd_float3(vector)
+        return SCNVector3(simdQuat.inverse.act(simdVector))
     }
 
     // MARK: - Setup
@@ -204,7 +191,7 @@ class GameViewController: UIViewController {
     }
     
     private func setupCameras() {
-        // upper camera will be attached to minicam in renderer
+        // upper camera will be attached to minicam in renderer, below
         cameraNodeUpper = SCNNode()
         cameraNodeUpper.camera = SCNCamera()
         scnViewUpper.pointOfView = cameraNodeUpper
@@ -253,5 +240,17 @@ extension SCNQuaternion {
         qz /= qnorm
 
         return SCNQuaternion(qx, qy, qz, qw)
+    }
+}
+
+extension simd_quatf {
+    init(_ quat: SCNQuaternion) {
+        self.init(ix: quat.x, iy: quat.y, iz: quat.z, r: quat.w)
+    }
+}
+
+extension SCNVector3 {
+    init (_ vector: simd_float3) {
+        self.init(vector.x, vector.y, vector.z)
     }
 }
