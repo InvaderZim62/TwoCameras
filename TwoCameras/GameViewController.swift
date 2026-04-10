@@ -85,18 +85,22 @@ class GameViewController: UIViewController {
     }
     
     private func setupCameras() {
-        // upper camera looking at aft of jet
+        let cameraAngle: Float = 20 * .pi / 180  // position camera 20 degrees above horizon
+
+        // upper camera looking at aft of jet (from slightly above)
         cameraNodeUpper = SCNNode()
         cameraNodeUpper.camera = SCNCamera()
-        cameraNodeUpper.position = SCNVector3(x: 0, y: 0, z: Constant.nominalCameraDistance)
+        cameraNodeUpper.transform = SCNMatrix4Rotate(cameraNodeUpper.transform, -cameraAngle, 1, 0, 0)  // rotate 20 degrees down
+        cameraNodeUpper.position = SCNVector3(x: 0, y: Constant.nominalCameraDistance * sin(cameraAngle), z: Constant.nominalCameraDistance * cos(cameraAngle))
         scnViewUpper.pointOfView = cameraNodeUpper
         scnScene.rootNode.addChildNode(cameraNodeUpper)
         
-        // lower camera looking at right side of jet
+        // lower camera looking at right side of jet (from slightly above)
         cameraNodeLower = SCNNode()
         cameraNodeLower.camera = SCNCamera()
-        cameraNodeLower.transform = SCNMatrix4Rotate(cameraNodeLower.transform, .pi / 2, 0, 1, 0)
-        cameraNodeLower.position = SCNVector3(x: Constant.nominalCameraDistance, y: 0, z: 0)
+        cameraNodeLower.transform = SCNMatrix4Rotate(cameraNodeLower.transform, .pi / 2, 0, 1, 0)  // rotate 90 degrees left
+        cameraNodeLower.transform = SCNMatrix4Rotate(cameraNodeLower.transform, -cameraAngle, 1, 0, 0)  // and 20 degrees down
+        cameraNodeLower.position = SCNVector3(x: Constant.nominalCameraDistance * cos(cameraAngle), y: Constant.nominalCameraDistance * sin(cameraAngle), z: 0)
         scnViewLower.pointOfView = cameraNodeLower
         scnScene.rootNode.addChildNode(cameraNodeLower)
     }
