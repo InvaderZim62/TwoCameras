@@ -15,6 +15,7 @@ import SceneKit
 struct Constant {
     static let minicamDistance: Float = 5  // can't be at 0, for pinch to work
     static let cameraDistance: Float = 12
+    static let showOffsetLines = false
 }
 
 class GameViewController: UIViewController {
@@ -101,6 +102,7 @@ class GameViewController: UIViewController {
     }
 
     private func updateMinicamOffsetLines() {
+        guard Constant.showOffsetLines else { return }
         offsetLines.indices.forEach { showMinicamOffsetLineFor(index: $0) }
     }
     
