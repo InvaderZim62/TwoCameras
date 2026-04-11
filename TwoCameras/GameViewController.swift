@@ -13,8 +13,8 @@ import QuartzCore
 import SceneKit
 
 struct Constant {
-    static let minicamDistance: Float = 2  // can't be at 0, for pinch to work
-    static let cameraDistance: Float = 6
+    static let minicamDistance: Float = 5  // can't be at 0, for pinch to work
+    static let cameraDistance: Float = 12
 }
 
 class GameViewController: UIViewController {
@@ -39,13 +39,13 @@ class GameViewController: UIViewController {
         setupViews()
         setupCameras()
         
-        let box = SCNBox(width: 0.3, height: 0.3, length: 0.3, chamferRadius: 0.0)
+        let box = SCNBox(width: 1, height: 1, length: 1, chamferRadius: 0.0)
         box.materials.first?.diffuse.contents = UIColor.gray
         let boxNode = SCNNode(geometry: box)
         boxNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)  // needed for .showPhysicsShapes
         scnViewUpper.scene?.rootNode.addChildNode(boxNode)
 
-        minicamNode = MinicamNode(bodyLength: 0.4)
+        minicamNode = MinicamNode(bodyLength: 1)
         minicamNode.position = minicamOffset
         scnViewUpper.scene?.rootNode.addChildNode(minicamNode)
 
@@ -69,7 +69,7 @@ class GameViewController: UIViewController {
             let deltaRight = Float(translation.x / 150)
             let deltaUp = Float(-translation.y / 150)
             
-            let deltaMinicam = convertVectorFromWorldToLocal(vector: SCNVector3(0, -deltaRight, 0), minicamNode.orientation)
+            let deltaMinicam = convertVectorFromWorldToLocal(vector: SCNVector3(0, -deltaRight, 0), minicamNode.simdOrientation)
             minicamNode.orientation = minicamNode.orientation.rotatedBy(deltaPitch: deltaUp + deltaMinicam.x, deltaYaw: deltaMinicam.y, deltaRoll: deltaMinicam.z)
             
         } else if recognizer.numberOfTouches == 2 {
@@ -78,7 +78,7 @@ class GameViewController: UIViewController {
             minicamOffset -= deltaPosition
         }
         
-        minicamNode.position = convertVectorFromLocalToWorld(vector: minicamOffset, minicamNode.orientation)
+        minicamNode.position = convertVectorFromLocalToWorld(vector: minicamOffset, minicamNode.simdOrientation)
         updateMinicamOffsetLines()
         recognizer.setTranslation(.zero, in: recognizer.view)
     }
@@ -86,7 +86,7 @@ class GameViewController: UIViewController {
     @objc func handlePinch(recognizer: UIPinchGestureRecognizer) {
         minicamOffset.z /= Float(recognizer.scale)  // should prevent this from reaching zero
         updateMinicamOffsetLines()
-        minicamNode.position = convertVectorFromLocalToWorld(vector: minicamOffset, minicamNode.orientation)
+        minicamNode.position = convertVectorFromLocalToWorld(vector: minicamOffset, minicamNode.simdOrientation)
         recognizer.scale = 1
     }
     
@@ -94,7 +94,7 @@ class GameViewController: UIViewController {
         // bank minicamNode
         let deltaRoll = Float(recognizer.rotation)
         minicamNode.orientation = minicamNode.orientation.rotatedBy(deltaPitch: 0, deltaYaw: 0, deltaRoll: deltaRoll)
-        let deltaQuat = SCNQuaternion(x: 0, y: 0, z: 1, w: deltaRoll)
+        let deltaQuat = simd_quatf(angle: deltaRoll, axis: [0, 0, 1])
         minicamOffset = convertVectorFromWorldToLocal(vector: minicamOffset, deltaQuat)
         updateMinicamOffsetLines()
         recognizer.rotation = 0
@@ -118,25 +118,23 @@ class GameViewController: UIViewController {
         default:
             break
         }
-//        offsetLines[index] = ModelEntity(mesh: .generateBox(size: size))
-//        let material = SimpleMaterial(color: [.red, .green, .blue][index], isMetallic: false)
-//        offsetLines[index].model?.materials = [material]
-//        offsetLines[index].position = [[-minicamOffset.x / 2, -minicamOffset.y, -minicamOffset.z], [0, -minicamOffset.y / 2, -minicamOffset.z], [0, 0, -minicamOffset.z / 2]][index]
+        let line = SCNBox(width: CGFloat(size.x), height: CGFloat(size.y), length: CGFloat(size.z), chamferRadius: 0)
+        line.firstMaterial?.diffuse.contents = [UIColor.red, .green, .blue][index]
+        offsetLines[index] = SCNNode(geometry: line)
+        offsetLines[index].position = [SCNVector3(-minicamOffset.x / 2, -minicamOffset.y, -minicamOffset.z),
+                                       SCNVector3(0, -minicamOffset.y / 2, -minicamOffset.z),
+                                       SCNVector3(0, 0, -minicamOffset.z / 2)][index]
         minicamNode.addChildNode(offsetLines[index])
     }
-
-    private func convertVectorFromLocalToWorld(vector: SCNVector3, _ quat: SCNQuaternion) -> SCNVector3 {
-        // SceneKit doesn't have quaternion math functions (like .act), so convert to simd, using extensions below
-        let simdQuat = simd_quatf(quat)
-        let simdVector = simd_float3(vector)
-        return SCNVector3(simdQuat.act(simdVector))
+    
+    private func convertVectorFromLocalToWorld(vector: SCNVector3, _ quat: simd_quatf) -> SCNVector3 {
+        let simdVector = simd_float3(vector)  // use simd, since SceneKit doesn't have quaternion math functions (like .act)
+        return SCNVector3(quat.act(simdVector))
     }
     
-    private func convertVectorFromWorldToLocal(vector: SCNVector3, _ quat: SCNQuaternion) -> SCNVector3 {
-        // SceneKit doesn't have quaternion math functions (like .act), so convert to simd, using extensions below
-        let simdQuat = simd_quatf(quat)
+    private func convertVectorFromWorldToLocal(vector: SCNVector3, _ quat: simd_quatf) -> SCNVector3 {
         let simdVector = simd_float3(vector)
-        return SCNVector3(simdQuat.inverse.act(simdVector))
+        return SCNVector3(quat.inverse.act(simdVector))
     }
 
     // MARK: - Setup
@@ -169,7 +167,7 @@ class GameViewController: UIViewController {
         // lower camera looking at whole scene (minicam and box) from slightly above
         cameraNodeLower = SCNNode()
         cameraNodeLower.camera = SCNCamera()
-        let cameraAngle: Float = 20 * .pi / 180  // position camera 20 degrees above horizon
+        let cameraAngle: Float = 0 * .pi / 180  // position camera 20 degrees above horizon
         cameraNodeLower.transform = SCNMatrix4Rotate(cameraNodeLower.transform, -cameraAngle, 1, 0, 0)  // rotate 20 degrees down
         cameraNodeLower.position = SCNVector3(x: 0, y: Constant.cameraDistance * sin(cameraAngle), z: Constant.cameraDistance * cos(cameraAngle))
         scnViewLower.pointOfView = cameraNodeLower
@@ -209,12 +207,6 @@ extension SCNQuaternion {
         qz /= qnorm
 
         return SCNQuaternion(qx, qy, qz, qw)
-    }
-}
-
-extension simd_quatf {
-    init(_ quat: SCNQuaternion) {
-        self.init(ix: quat.x, iy: quat.y, iz: quat.z, r: quat.w)
     }
 }
 
