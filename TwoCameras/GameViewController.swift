@@ -25,7 +25,7 @@ class GameViewController: UIViewController {
     var cameraNodeUpper: SCNNode!
     var cameraNodeLower: SCNNode!
     
-    var minicamNode: MinicamNode!
+    var minicamNode = MinicamNode(bodyLength: 1)
     var minicamOffset = SCNVector3(0, 0, Constant.minicamDistance)  // in minicam coordinates
     var offsetLines = Array(repeating: SCNNode(), count: 3)  // minicamOffset vector as three colored lines connecting minicam to world center
 
@@ -46,7 +46,6 @@ class GameViewController: UIViewController {
         boxNode.physicsBody = SCNPhysicsBody(type: .kinematic, shape: nil)  // needed for .showPhysicsShapes
         scnViewUpper.scene?.rootNode.addChildNode(boxNode)
 
-        minicamNode = MinicamNode(bodyLength: 1)
         minicamNode.position = minicamOffset
         scnViewUpper.scene?.rootNode.addChildNode(minicamNode)
 
@@ -151,7 +150,6 @@ class GameViewController: UIViewController {
         scnViewUpper.autoenablesDefaultLighting = true  // false: disable default (ambient) light, if another light source is specified
         scnViewUpper.debugOptions = .showPhysicsShapes  // show axes
         scnViewUpper.scene = scnScene
-        scnViewUpper.delegate = self
 
         scnViewLower.allowsCameraControl = false
         scnViewLower.autoenablesDefaultLighting = true
@@ -160,26 +158,20 @@ class GameViewController: UIViewController {
     }
     
     private func setupCameras() {
-        // upper camera will be attached to minicam in renderer, below
+        // upper camera is attached to minicam
         cameraNodeUpper = SCNNode()
         cameraNodeUpper.camera = SCNCamera()
         scnViewUpper.pointOfView = cameraNodeUpper
-        scnScene.rootNode.addChildNode(cameraNodeUpper)
+        minicamNode.addChildNode(cameraNodeUpper)
         
-        // lower camera looking at whole scene (minicam and box) from slightly above
+        // lower camera looks at whole scene (box and minicam)
         cameraNodeLower = SCNNode()
         cameraNodeLower.camera = SCNCamera()
-        let cameraAngle: Float = 0 * .pi / 180  // position camera 20 degrees above horizon
+        let cameraAngle: Float = 20 * .pi / 180  // position camera 20 degrees above horizon
         cameraNodeLower.transform = SCNMatrix4Rotate(cameraNodeLower.transform, -cameraAngle, 1, 0, 0)  // rotate 20 degrees down
         cameraNodeLower.position = SCNVector3(x: 0, y: Constant.cameraDistance * sin(cameraAngle), z: Constant.cameraDistance * cos(cameraAngle))
         scnViewLower.pointOfView = cameraNodeLower
         scnScene.rootNode.addChildNode(cameraNodeLower)
-    }
-}
-
-extension GameViewController: SCNSceneRendererDelegate {  // requires scnView.delegate = self
-    func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
-        cameraNodeUpper.transform = minicamNode.transform
     }
 }
 
