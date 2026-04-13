@@ -1,7 +1,8 @@
 # Two Cameras
 
-Two Cameras demonstrates how you can have two views of the same scene, each with its own camera.
-It also demonstrates how to duplicate the standard camera controls built into SceneKit.
+Two Cameras is a ScneneKit app.  It demonstrates how you can have two views of the same scene,
+each with its own camera.  It also demonstrates how to duplicate the standard camera controls
+built into SceneKit.
 
 The lower view has a fixed camera, positioned to show a box fixed at the center of the scene and
 a model of a camera (minicam) moving around the scene.  The upper view has a camera attached to
