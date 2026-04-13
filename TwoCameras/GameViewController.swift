@@ -15,7 +15,7 @@ import SceneKit
 struct Constant {
     static let minicamDistance: Float = 5  // can't be at 0, for pinch to work
     static let cameraDistance: Float = 12
-    static let showOffsetLines = false
+    static let showOffsetLines = true
 }
 
 class GameViewController: UIViewController {
@@ -27,7 +27,7 @@ class GameViewController: UIViewController {
     
     var minicamNode = MinicamNode(bodyLength: 1)
     var minicamOffset = SCNVector3(0, 0, Constant.minicamDistance)  // in minicam coordinates
-    var offsetLines = Array(repeating: SCNNode(), count: 3)  // minicamOffset vector as three colored lines connecting minicam to world center
+    var minicamOffsetLines = Array(repeating: SCNNode(), count: 3)  // minicamOffset vector as three colored lines connecting minicam to world center
 
     @IBOutlet weak var scnViewUpper: SCNView!
     @IBOutlet weak var scnViewLower: SCNView!
@@ -48,6 +48,7 @@ class GameViewController: UIViewController {
 
         minicamNode.position = minicamOffset
         scnViewUpper.scene?.rootNode.addChildNode(minicamNode)
+        showMinicamOffsetLines()
 
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         view.addGestureRecognizer(pan)
@@ -63,51 +64,56 @@ class GameViewController: UIViewController {
         let translation = recognizer.translation(in: recognizer.view)
         
         if recognizer.numberOfTouches == 1 {
-            // rotate minicamNode
-            // pan right: rotate world around world y-axis (rotate minicamNode about negative world y-axis)
-            // pan up: rotate world about screen left-axis (rotate minicamNode about positive camera x-axis)
+            // rotate minicam
             let deltaRight = Float(translation.x / 150)
             let deltaUp = Float(-translation.y / 150)
             
+            // deltaRight rotates the camera about the world neg. y-axis;
+            // deltaUp rotates the camera about the camera pos. x-axis;
+            // deltaRight must be converted to camera coordinates before adding deltaUp
             let deltaMinicam = convertVectorFromWorldToLocal(vector: SCNVector3(0, -deltaRight, 0), minicamNode.simdOrientation)
-            minicamNode.orientation = minicamNode.orientation.rotatedBy(deltaPitch: deltaUp + deltaMinicam.x, deltaYaw: deltaMinicam.y, deltaRoll: deltaMinicam.z)
+            minicamNode.orientation = minicamNode.orientation.rotatedBy(deltaPitch: deltaMinicam.x + deltaUp,
+                                                                        deltaYaw: deltaMinicam.y,
+                                                                        deltaRoll: deltaMinicam.z)
             
         } else if recognizer.numberOfTouches == 2 {
-            // offset minicamNode
+            // offset minicam
+            // move minicam along minicam x/y axes
             let deltaPosition = SCNVector3(Float(translation.x), Float(-translation.y), 0) / 180
             minicamOffset -= deltaPosition
         }
         
         minicamNode.position = convertVectorFromLocalToWorld(vector: minicamOffset, minicamNode.simdOrientation)
-        updateMinicamOffsetLines()
+        showMinicamOffsetLines()
         recognizer.setTranslation(.zero, in: recognizer.view)
     }
     
     @objc func handlePinch(recognizer: UIPinchGestureRecognizer) {
         minicamOffset.z /= Float(recognizer.scale)  // should prevent this from reaching zero
-        updateMinicamOffsetLines()
+        showMinicamOffsetLines()
         minicamNode.position = convertVectorFromLocalToWorld(vector: minicamOffset, minicamNode.simdOrientation)
         recognizer.scale = 1
     }
     
     @objc func handleRotation(recognizer: UIRotationGestureRecognizer) {
-        // bank minicamNode
+        // roll minicam
+        // roll minicam around minicam z-axis
         let deltaRoll = Float(recognizer.rotation)
         minicamNode.orientation = minicamNode.orientation.rotatedBy(deltaPitch: 0, deltaYaw: 0, deltaRoll: deltaRoll)
         let deltaQuat = simd_quatf(angle: deltaRoll, axis: [0, 0, 1])
         minicamOffset = convertVectorFromWorldToLocal(vector: minicamOffset, deltaQuat)
-        updateMinicamOffsetLines()
+        showMinicamOffsetLines()
         recognizer.rotation = 0
     }
 
-    private func updateMinicamOffsetLines() {
+    private func showMinicamOffsetLines() {
         guard Constant.showOffsetLines else { return }
-        offsetLines.indices.forEach { showMinicamOffsetLineFor(index: $0) }
+        minicamOffsetLines.indices.forEach { updateMinicamOffsetLineFor(index: $0) }
     }
     
     // remove and re-add lines with updated offsets
-    private func showMinicamOffsetLineFor(index: Int) {
-        offsetLines[index].removeFromParentNode()
+    private func updateMinicamOffsetLineFor(index: Int) {
+        minicamOffsetLines[index].removeFromParentNode()
         var size = SCNVector3(0.01, 0.01, 0.01)
         switch index {
         case 0:
@@ -121,11 +127,11 @@ class GameViewController: UIViewController {
         }
         let line = SCNBox(width: CGFloat(size.x), height: CGFloat(size.y), length: CGFloat(size.z), chamferRadius: 0)
         line.firstMaterial?.diffuse.contents = [UIColor.red, .green, .blue][index]
-        offsetLines[index] = SCNNode(geometry: line)
-        offsetLines[index].position = [SCNVector3(-minicamOffset.x / 2, -minicamOffset.y, -minicamOffset.z),
+        minicamOffsetLines[index] = SCNNode(geometry: line)
+        minicamOffsetLines[index].position = [SCNVector3(-minicamOffset.x / 2, -minicamOffset.y, -minicamOffset.z),
                                        SCNVector3(0, -minicamOffset.y / 2, -minicamOffset.z),
                                        SCNVector3(0, 0, -minicamOffset.z / 2)][index]
-        minicamNode.addChildNode(offsetLines[index])
+        minicamNode.addChildNode(minicamOffsetLines[index])
     }
     
     private func convertVectorFromLocalToWorld(vector: SCNVector3, _ quat: simd_quatf) -> SCNVector3 {
@@ -146,6 +152,7 @@ class GameViewController: UIViewController {
     }
 
     private func setupViews() {
+        // both views share the same scene
         scnViewUpper.allowsCameraControl = false  // false: move camera programmatically
         scnViewUpper.autoenablesDefaultLighting = true  // false: disable default (ambient) light, if another light source is specified
         scnViewUpper.debugOptions = .showPhysicsShapes  // show axes
