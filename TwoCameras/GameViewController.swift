@@ -72,9 +72,9 @@ class GameViewController: UIViewController {
             // deltaUp rotates the camera about the camera pos. x-axis;
             // deltaRight must be converted to camera coordinates before adding deltaUp
             let deltaMinicam = convertVectorFromWorldToLocal(vector: SCNVector3(0, -deltaRight, 0), minicamNode.simdOrientation)
-            minicamNode.orientation = minicamNode.orientation.rotatedBy(deltaPitch: deltaMinicam.x + deltaUp,
-                                                                        deltaYaw: deltaMinicam.y,
-                                                                        deltaRoll: deltaMinicam.z)
+            minicamNode.orientation.rotateBy(deltaPitch: deltaMinicam.x + deltaUp,
+                                             deltaYaw: deltaMinicam.y,
+                                             deltaRoll: deltaMinicam.z)
             
         } else if recognizer.numberOfTouches == 2 {
             // offset minicam
@@ -99,7 +99,7 @@ class GameViewController: UIViewController {
         // roll minicam
         // roll minicam around minicam z-axis
         let deltaRoll = Float(recognizer.rotation)
-        minicamNode.orientation = minicamNode.orientation.rotatedBy(deltaPitch: 0, deltaYaw: 0, deltaRoll: deltaRoll)
+        minicamNode.orientation.rotateBy(deltaPitch: 0, deltaYaw: 0, deltaRoll: deltaRoll)
         let deltaQuat = simd_quatf(angle: deltaRoll, axis: [0, 0, 1])
         minicamOffset = convertVectorFromWorldToLocal(vector: minicamOffset, deltaQuat)
         showMinicamOffsetLines()
@@ -183,8 +183,9 @@ class GameViewController: UIViewController {
 }
 
 extension SCNQuaternion {
+    
     // incrementally rotate quaternion
-    func rotatedBy(deltaPitch: Float, deltaYaw: Float, deltaRoll: Float) -> SCNQuaternion {
+    mutating func rotateBy(deltaPitch: Float, deltaYaw: Float, deltaRoll: Float) {
         let quat = self
         
         // quaternion rates (aeronautical standard, except: p -> q, q -> r, r -> p)
@@ -199,15 +200,15 @@ extension SCNQuaternion {
         var qy = quat.y + deltaQy
         var qz = quat.z + deltaQz
         
-        // normalize quaternions to prevent integration error growth
+        // re-normalize quaternion
         let qnorm = sqrt(pow(qw, 2) + pow(qx, 2) + pow(qy, 2) + pow(qz, 2))
         
         qw /= qnorm
         qx /= qnorm
         qy /= qnorm
         qz /= qnorm
-
-        return SCNQuaternion(qx, qy, qz, qw)
+        
+        self = SCNQuaternion(qx, qy, qz, qw)
     }
 }
 
