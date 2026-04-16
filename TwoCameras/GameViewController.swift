@@ -72,10 +72,12 @@ class GameViewController: UIViewController {
             // deltaUp rotates the camera about the camera pos. x-axis;
             // deltaRight must be converted to camera coordinates before adding deltaUp
             let deltaMinicam = convertVectorFromWorldToLocal(vector: SCNVector3(0, -deltaRight, 0), minicamNode.simdOrientation)
-            minicamNode.orientation.rotateBy(deltaPitch: deltaMinicam.x + deltaUp,
-                                             deltaYaw: deltaMinicam.y,
-                                             deltaRoll: deltaMinicam.z)
             
+            let totalRotation = sqrt(pow(deltaMinicam.magnitude, 2) + pow(deltaUp, 2))
+            minicamNode.transform = SCNMatrix4Rotate(minicamNode.transform, totalRotation,  // incremental rotation
+                                                     deltaMinicam.x + deltaUp,
+                                                     deltaMinicam.y,
+                                                     deltaMinicam.z)
         } else if recognizer.numberOfTouches == 2 {
             // offset minicam
             // move minicam along minicam x/y axes
@@ -99,7 +101,7 @@ class GameViewController: UIViewController {
         // roll minicam
         // roll minicam around minicam z-axis
         let deltaRoll = Float(recognizer.rotation)
-        minicamNode.orientation.rotateBy(deltaPitch: 0, deltaYaw: 0, deltaRoll: deltaRoll)
+        minicamNode.transform = SCNMatrix4Rotate(minicamNode.transform, deltaRoll, 0, 0, 1)  // incremental rotation
         let deltaQuat = simd_quatf(angle: deltaRoll, axis: [0, 0, 1])
         minicamOffset = convertVectorFromWorldToLocal(vector: minicamOffset, deltaQuat)
         showMinicamOffsetLines()
@@ -179,41 +181,5 @@ class GameViewController: UIViewController {
         cameraNodeLower.position = SCNVector3(x: 0, y: Constant.cameraDistance * sin(cameraAngle), z: Constant.cameraDistance * cos(cameraAngle))
         scnViewLower.pointOfView = cameraNodeLower
         scnScene.rootNode.addChildNode(cameraNodeLower)
-    }
-}
-
-extension SCNQuaternion {
-    
-    // incrementally rotate quaternion
-    mutating func rotateBy(deltaPitch: Float, deltaYaw: Float, deltaRoll: Float) {
-        let quat = self
-        
-        // quaternion rates (aeronautical standard, except: p -> q, q -> r, r -> p)
-        let deltaQw = (-quat.x * deltaPitch - quat.y * deltaYaw - quat.z * deltaRoll) / 2
-        let deltaQx = ( quat.w * deltaPitch - quat.z * deltaYaw + quat.y * deltaRoll) / 2
-        let deltaQy = ( quat.z * deltaPitch + quat.w * deltaYaw - quat.x * deltaRoll) / 2
-        let deltaQz = (-quat.y * deltaPitch + quat.x * deltaYaw + quat.w * deltaRoll) / 2
-        
-        // intergate quaternion rates
-        var qw = quat.w + deltaQw
-        var qx = quat.x + deltaQx
-        var qy = quat.y + deltaQy
-        var qz = quat.z + deltaQz
-        
-        // re-normalize quaternion
-        let qnorm = sqrt(pow(qw, 2) + pow(qx, 2) + pow(qy, 2) + pow(qz, 2))
-        
-        qw /= qnorm
-        qx /= qnorm
-        qy /= qnorm
-        qz /= qnorm
-        
-        self = SCNQuaternion(qx, qy, qz, qw)
-    }
-}
-
-extension SCNVector3 {
-    init (_ vector: simd_float3) {
-        self.init(vector.x, vector.y, vector.z)
     }
 }
